@@ -1,0 +1,1562 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light">
+  <title>FINPULSE · 1분 AI 시황 브리핑</title>
+  <meta name="description" content="달러/원, 나스닥, S&amp;P500, 빅테크와 양자컴퓨터 시세를 한 화면에서 보고, 관심 분야만 담은 1분 AI 브리핑을 받아 보세요.">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%232563eb'/%3E%3Cpath d='M6 20.5l6.2-7.2 4.3 4.6L25.5 8' fill='none' stroke='white' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="preconnect" href="https://cdn.jsdelivr.net">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@450;500;600;700&amp;display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['"Pretendard Variable"', 'Pretendard', 'Inter', 'system-ui', 'sans-serif'],
+            num: ['Inter', '"Pretendard Variable"', 'sans-serif']
+          },
+          colors: {
+            page: '#f8fafc',
+            line: '#e2e8f0',
+            brand: '#2563eb'
+          },
+          boxShadow: {
+            card: '0 1px 2px rgba(15,23,42,0.04), 0 10px 28px rgba(15,23,42,0.05)'
+          }
+        }
+      }
+    };
+  </script>
+  <style>
+    :root {
+      --bg: #f8fafc;
+      --card: #ffffff;
+      --line: #e2e8f0;
+      --ink: #0f172a;
+      --muted: #64748b;
+      --blue: #2563eb;
+      --blue-dark: #1d4ed8;
+      --soft: #eff6ff;
+    }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--ink);
+      font-family: "Pretendard Variable", Pretendard, Inter, system-ui, sans-serif;
+      text-rendering: optimizeLegibility;
+    }
+    .font-num { font-family: Inter, "Pretendard Variable", sans-serif; font-variant-numeric: tabular-nums; }
+    .skip {
+      position: absolute;
+      left: 1rem;
+      top: -3rem;
+      z-index: 100;
+      background: #fff;
+      border-radius: 0.5rem;
+      padding: 0.5rem 0.75rem;
+    }
+    .skip:focus { top: 0.75rem; }
+    /* Header is only sticky from 640px up (see #top-bar), so phones need little scroll offset. */
+    #chart-panel, #subscribe { scroll-margin-top: 1rem; }
+    @media (min-width: 640px) {
+      #chart-panel, #subscribe { scroll-margin-top: 12rem; }
+    }
+    @media (min-width: 1024px) {
+      #chart-panel, #subscribe { scroll-margin-top: 8.75rem; }
+    }
+    .card {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04), 0 10px 28px rgba(15, 23, 42, 0.045);
+    }
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.4rem;
+      border-radius: 10px;
+      font-weight: 650;
+      font-size: 0.875rem;
+      line-height: 1.2;
+      padding: 0.62rem 0.9rem;
+      border: 1px solid transparent;
+      cursor: pointer;
+      transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+      white-space: nowrap;
+    }
+    .btn:disabled { opacity: 0.62; cursor: progress; }
+    .btn-primary { background: var(--blue); color: #fff; }
+    .btn-primary:hover:not(:disabled) { background: var(--blue-dark); }
+    .btn-ghost { background: #fff; color: #334155; border-color: var(--line); }
+    .btn-ghost:hover:not(:disabled) { background: #f8fafc; }
+    .btn-text {
+      background: transparent;
+      color: var(--blue);
+      border-color: transparent;
+      padding: 0.35rem 0.2rem;
+      font-size: 0.78rem;
+    }
+    .btn-text:hover { color: var(--blue-dark); }
+    .tab {
+      appearance: none;
+      background: transparent;
+      border: 0;
+      color: #64748b;
+      font-weight: 650;
+      font-size: 0.86rem;
+      padding: 0.7rem 0.15rem;
+      cursor: pointer;
+      border-bottom: 2px solid transparent;
+      white-space: nowrap;
+      flex: none;
+    }
+    .tab[aria-selected="true"] { color: var(--blue); border-bottom-color: var(--blue); }
+    .tab:hover { color: #0f172a; }
+    .pill, .chip {
+      appearance: none;
+      border: 1px solid var(--line);
+      background: #fff;
+      color: #334155;
+      border-radius: 999px;
+      padding: 0.38rem 0.75rem;
+      font-size: 0.8rem;
+      font-weight: 650;
+      cursor: pointer;
+      white-space: nowrap;
+    }
+    .pill:hover, .chip:hover { border-color: #cbd5e1; background: #f8fafc; }
+    .pill[aria-pressed="true"], .chip[aria-pressed="true"] {
+      background: var(--blue);
+      border-color: var(--blue);
+      color: #fff;
+    }
+    .search-panel {
+      position: absolute;
+      left: 0;
+      right: 0;
+      top: calc(100% + 6px);
+      background: #fff;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      box-shadow: 0 16px 40px rgba(15, 23, 42, 0.12);
+      max-height: 22rem;
+      overflow: auto;
+      z-index: 50;
+      padding: 0.35rem;
+    }
+    .search-item {
+      width: 100%;
+      text-align: left;
+      border: 0;
+      background: transparent;
+      border-radius: 10px;
+      padding: 0.6rem 0.7rem;
+      cursor: pointer;
+      display: flex;
+      justify-content: space-between;
+      gap: 0.75rem;
+    }
+    .search-item[aria-selected="true"], .search-item:hover { background: #f1f5f9; }
+    .check-card {
+      display: flex;
+      gap: 0.75rem;
+      align-items: flex-start;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 0.8rem 0.85rem;
+      background: #fff;
+      cursor: pointer;
+    }
+    .check-card:hover { border-color: #cbd5e1; }
+    .check-card:has(input:checked) { border-color: #93c5fd; background: var(--soft); }
+    .check-card input { margin-top: 0.15rem; width: 1rem; height: 1rem; accent-color: var(--blue); flex: none; }
+    .time-row { display: grid; grid-template-columns: 1fr; gap: 0.5rem; }
+    @media (min-width: 640px) { .time-row { grid-template-columns: repeat(3, 1fr); } }
+    .time-row label {
+      position: relative;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      padding: 0.7rem 0.4rem;
+      text-align: center;
+      font-size: 0.84rem;
+      font-weight: 700;
+      color: #334155;
+      cursor: pointer;
+      background: #fff;
+    }
+    .time-row label:hover { border-color: #cbd5e1; }
+    .time-row label:has(input:checked) { background: var(--blue); border-color: var(--blue); color: #fff; }
+    .time-row label:focus-within { outline: 2px solid var(--blue); outline-offset: 2px; }
+    .time-row input {
+      position: absolute;
+      opacity: 0;
+      inset: 0;
+      margin: 0;
+      cursor: pointer;
+    }
+    .news-item { border-bottom: 1px solid #f1f5f9; }
+    .news-item:last-child { border-bottom: 0; }
+    .news-link-card {
+      position: relative;
+      display: block;
+      padding: 0.85rem 0.6rem 1.35rem;
+      border-radius: 0.6rem;
+      color: inherit;
+      text-decoration: none;
+      transition: background-color 0.15s ease;
+    }
+    .news-link-card:hover, .news-link-card:focus-visible { background: var(--soft); }
+    .news-link-card:focus-visible { outline: 2px solid var(--blue); outline-offset: -2px; }
+    .news-link-card:hover h3, .news-link-card:focus-visible h3 { color: var(--blue); }
+    .news-link-card .news-open {
+      position: absolute;
+      right: 0.6rem;
+      bottom: 0.45rem;
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--blue);
+      opacity: 0;
+      transform: translateY(2px);
+      transition: opacity 0.15s ease, transform 0.15s ease;
+    }
+    .news-link-card:hover .news-open, .news-link-card:focus-visible .news-open { opacity: 1; transform: none; }
+    @media (hover: none) { .news-link-card .news-open { opacity: 1; transform: none; } }
+    .news-static { display: block; padding: 0.85rem 0.6rem; }
+    .news-new {
+      display: inline-flex;
+      align-items: center;
+      border-radius: 999px;
+      background: #ef4444;
+      color: #fff;
+      font-size: 10px;
+      font-weight: 800;
+      letter-spacing: 0.04em;
+      padding: 0.05rem 0.4rem;
+    }
+    .tag {
+      display: inline-flex;
+      align-items: center;
+      border-radius: 999px;
+      background: var(--soft);
+      color: var(--blue);
+      font-size: 0.7rem;
+      font-weight: 700;
+      padding: 0.12rem 0.45rem;
+    }
+    .scroll { scrollbar-width: thin; scrollbar-color: #cbd5e1 transparent; }
+    .scroll::-webkit-scrollbar { width: 10px; height: 10px; }
+    .scroll::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 99px; border: 2px solid #fff; }
+    /* #chart-host needs a fixed height: height:100% here resolved to auto (parent has no height) and collapsed the iframe to its 150px default. */
+    #chart-host { width: 100%; height: 460px; }
+    @media (min-width: 640px) { #chart-host { height: 540px; } }
+    @media (min-width: 1024px) { #chart-host { height: 600px; } }
+    #chart-host .tradingview-widget-container, #chart-host .tradingview-widget-container__widget { height: 100%; width: 100%; }
+    #chart-host iframe { width: 100% !important; height: 100% !important; }
+    .quote-slot { min-height: 108px; }
+    .tape { min-height: 46px; background: #fff; border-bottom: 1px solid var(--line); }
+    .tradingview-widget-copyright { font-size: 11px !important; line-height: 1.4 !important; }
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      z-index: 70;
+      background: rgba(15, 23, 42, 0.46);
+      display: flex;
+      align-items: flex-end;
+      justify-content: center;
+      padding: 0.75rem;
+    }
+    @media (min-width: 640px) {
+      .modal-backdrop { align-items: center; padding: 1.5rem; }
+    }
+    .modal-panel {
+      width: min(740px, 100%);
+      max-height: min(92vh, 920px);
+      background: #fff;
+      border-radius: 18px;
+      box-shadow: 0 24px 80px rgba(15, 23, 42, 0.28);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      animation: rise 0.18s ease;
+    }
+    .letter { background: #fff; border: 1px solid var(--line); border-radius: 14px; overflow: hidden; }
+    .letter-hero { background: linear-gradient(135deg, #1d4ed8, #2563eb 55%, #3b82f6); color: #fff; padding: 1.25rem 1.3rem 1.15rem; }
+    .letter-section { padding: 0.95rem 0 0.2rem; border-top: 1px solid #f1f5f9; }
+    #toasts {
+      position: fixed;
+      z-index: 80;
+      right: 1rem;
+      bottom: 1rem;
+      width: min(22.5rem, calc(100vw - 2rem));
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+      pointer-events: none;
+    }
+    .toast {
+      pointer-events: auto;
+      display: flex;
+      gap: 0.7rem;
+      align-items: flex-start;
+      background: #fff;
+      border: 1px solid var(--line);
+      border-left: 4px solid var(--blue);
+      border-radius: 12px;
+      box-shadow: 0 12px 32px rgba(15, 23, 42, 0.12);
+      padding: 0.75rem 0.75rem 0.75rem 0.85rem;
+      animation: rise 0.18s ease;
+    }
+    .toast.success { border-left-color: #059669; }
+    .toast.error { border-left-color: #e11d48; }
+    .toast.info { border-left-color: #2563eb; }
+    .sr-only {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      padding: 0;
+      margin: -1px;
+      overflow: hidden;
+      clip: rect(0, 0, 0, 0);
+      white-space: nowrap;
+      border: 0;
+    }
+    @keyframes rise {
+      from { opacity: 0; transform: translateY(8px); }
+      to { opacity: 1; transform: none; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      html { scroll-behavior: auto; }
+      *, *::before, *::after {
+        animation: none !important;
+        transition: none !important;
+      }
+    }
+  </style>
+</head>
+<body>
+  <a class="skip" href="#main">본문으로 건너뛰기</a>
+
+  <div id="top-bar" class="relative sm:sticky top-0 z-40">
+    <div class="h-[3px] bg-[#2563eb]"></div>
+    <header class="bg-white border-b border-line">
+      <div class="max-w-[1240px] mx-auto px-4 sm:px-6 py-3 flex flex-wrap items-center gap-3">
+        <a href="#main" class="flex items-center gap-2.5 shrink-0 no-underline text-inherit">
+          <span class="grid place-items-center w-9 h-9 rounded-xl bg-[#2563eb] text-white" aria-hidden="true">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+              <path d="M3 16.5 8.8 9.2l4.2 4.4L21 5.5" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </span>
+          <span class="leading-tight">
+            <span class="block font-num text-[17px] font-bold tracking-[-0.04em]">FINPULSE</span>
+            <span class="mt-0.5 inline-flex items-center rounded-full border border-[#bfdbfe] bg-[#eff6ff] px-1.5 py-0.5 text-[10px] font-bold tracking-wide text-[#1d4ed8]">AI × GAS</span>
+          </span>
+        </a>
+
+        <div id="symbol-search-wrap" class="relative flex-1 min-w-[16rem] order-3 lg:order-none w-full lg:w-auto">
+          <label class="sr-only" for="symbol-search">종목 검색</label>
+          <svg class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <circle cx="11" cy="11" r="7" stroke="currentColor" stroke-width="2"/>
+            <path d="M20 20l-3.5-3.5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+          </svg>
+          <input id="symbol-search" class="w-full rounded-xl border border-line bg-[#f8fafc] py-2.5 pl-9 pr-3 text-sm outline-none focus:border-[#93c5fd] focus:bg-white focus:ring-4 focus:ring-[#2563eb]/10" type="search" placeholder="심볼 또는 종목명 검색" autocomplete="off" role="combobox" aria-expanded="false" aria-controls="search-list" aria-autocomplete="list">
+          <div id="search-list" class="search-panel hidden" role="listbox"></div>
+        </div>
+
+        <div class="ml-auto flex items-center gap-2">
+          <button id="nav-sample" class="btn btn-ghost" type="button">샘플 메일 보기</button>
+          <button id="nav-subscribe" class="btn btn-primary" type="button">AI 브리핑 구독</button>
+        </div>
+      </div>
+    </header>
+    <div id="tv-tape" class="tape"></div>
+  </div>
+
+  <main id="main" class="max-w-[1240px] mx-auto px-4 sm:px-6 py-6 sm:py-8 space-y-6">
+    <div class="flex flex-wrap items-end justify-between gap-3">
+      <div>
+        <h1 class="text-[1.35rem] sm:text-2xl font-bold tracking-[-0.03em]">오늘의 글로벌 시황</h1>
+        <p class="mt-1 text-sm text-slate-500">차트와 시세는 TradingView, 브리핑은 관심 분야만 골라 1분에 읽힙니다.</p>
+      </div>
+      <div id="market-clock" class="flex flex-wrap gap-2 text-xs font-semibold text-slate-600"></div>
+    </div>
+
+    <section aria-labelledby="metrics-title">
+      <div class="mb-3 flex items-center justify-between gap-3">
+        <h2 id="metrics-title" class="text-sm font-bold">핵심 시세</h2>
+        <p class="text-xs text-slate-500">카드를 누르면 아래 메인 차트로 이동합니다.</p>
+      </div>
+      <div id="quote-grid" class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-3">
+        <article class="card p-3.5 flex flex-col">
+          <div class="px-1">
+            <p class="text-[13px] font-bold">달러/원 환율</p>
+            <p class="font-num text-[11px] text-slate-400">FX_IDC:USDKRW</p>
+          </div>
+          <div class="quote-slot" data-tv-quote="FX_IDC:USDKRW"></div>
+          <button class="btn btn-ghost w-full mt-1" type="button" data-open-symbol="FX_IDC:USDKRW">메인 차트에서 보기</button>
+        </article>
+        <article class="card p-3.5 flex flex-col">
+          <div class="px-1">
+            <p class="text-[13px] font-bold">나스닥 100 ETF</p>
+            <p class="font-num text-[11px] text-slate-400">NASDAQ:QQQ</p>
+          </div>
+          <div class="quote-slot" data-tv-quote="NASDAQ:QQQ"></div>
+          <button class="btn btn-ghost w-full mt-1" type="button" data-open-symbol="NASDAQ:QQQ">메인 차트에서 보기</button>
+        </article>
+        <article class="card p-3.5 flex flex-col">
+          <div class="px-1">
+            <p class="text-[13px] font-bold">S&amp;P 500</p>
+            <p class="font-num text-[11px] text-slate-400">FOREXCOM:SPXUSD</p>
+          </div>
+          <div class="quote-slot" data-tv-quote="FOREXCOM:SPXUSD"></div>
+          <button class="btn btn-ghost w-full mt-1" type="button" data-open-symbol="FOREXCOM:SPXUSD">메인 차트에서 보기</button>
+        </article>
+        <article class="card p-3.5 flex flex-col">
+          <div class="px-1">
+            <p class="text-[13px] font-bold">아이온큐</p>
+            <p class="font-num text-[11px] text-slate-400">NYSE:IONQ</p>
+          </div>
+          <div class="quote-slot" data-tv-quote="NYSE:IONQ"></div>
+          <button class="btn btn-ghost w-full mt-1" type="button" data-open-symbol="NYSE:IONQ">메인 차트에서 보기</button>
+        </article>
+      </div>
+    </section>
+
+    <section class="grid grid-cols-1 lg:grid-cols-12 gap-4 items-start" aria-label="차트와 브리핑">
+      <div id="chart-panel" class="card lg:col-span-7 overflow-hidden">
+        <div class="px-4 sm:px-5 pt-4">
+          <div class="flex items-start justify-between gap-3">
+            <div>
+              <h2 class="text-sm font-bold">인터랙티브 차트</h2>
+              <p id="chart-caption" class="mt-1 text-xs text-slate-500 font-num">달러/원 · USD/KRW · FX_IDC:USDKRW</p>
+            </div>
+            <span class="tag">일봉 · 서울</span>
+          </div>
+          <div id="chart-tabs" class="mt-3 flex gap-4 overflow-x-auto scroll border-b border-line" role="tablist" aria-label="차트 분류">
+            <button class="tab" type="button" role="tab" data-tab="fx" aria-selected="true">환율 · 주요 지수</button>
+            <button class="tab" type="button" role="tab" data-tab="etf" aria-selected="false">핵심 ETF (QQQ·SPY·SOXX)</button>
+            <button class="tab" type="button" role="tab" data-tab="mega" aria-selected="false">미국 빅테크</button>
+            <button class="tab" type="button" role="tab" data-tab="quantum" aria-selected="false">양자컴퓨터</button>
+          </div>
+          <div id="chart-pills" class="flex gap-2 overflow-x-auto scroll py-3" role="group" aria-label="종목 선택"></div>
+        </div>
+        <div id="chart-host" class="border-t border-line bg-white"></div>
+      </div>
+
+      <div class="lg:col-span-5 flex flex-col gap-4">
+        <article class="card p-4 sm:p-5">
+          <div class="flex items-start justify-between gap-3">
+            <div>
+              <p class="text-[11px] font-bold tracking-wide text-[#2563eb]">매일 1분</p>
+              <h2 class="mt-1 text-base font-bold">AI 이메일 브리핑</h2>
+            </div>
+            <span class="tag">미리보기</span>
+          </div>
+          <div id="mini-mail" class="mt-3"></div>
+          <button id="open-mail" class="btn btn-primary w-full mt-4" type="button">전체 HTML 미리보기</button>
+        </article>
+
+        <article class="card p-4 sm:p-5">
+          <div class="flex items-start justify-between gap-3">
+            <div>
+              <h2 class="text-base font-bold">실시간 주요 이슈 피드</h2>
+              <p id="feed-status" class="mt-1 text-xs text-slate-500">피드를 준비하고 있습니다.</p>
+            </div>
+            <button id="feed-refresh" class="btn btn-ghost !px-2.5" type="button" aria-label="뉴스 피드 새로고침">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                <path d="M20 12a8 8 0 1 1-2.2-5.5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                <path d="M20 4v5h-5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </button>
+          </div>
+          <div id="news-filters" class="mt-3 flex gap-2 overflow-x-auto scroll" role="group" aria-label="뉴스 분류"></div>
+          <div id="news-list" class="mt-2 max-h-[430px] overflow-auto scroll"></div>
+        </article>
+      </div>
+    </section>
+
+    <section class="card overflow-hidden" aria-labelledby="board-title">
+      <div class="px-4 sm:px-5 py-4 border-b border-line flex flex-wrap items-end justify-between gap-2">
+        <div>
+          <h2 id="board-title" class="text-base font-bold">핵심 기업 · 테마 시세</h2>
+          <p class="mt-1 text-xs text-slate-500">빅테크, 양자컴퓨터, 대표 ETF를 탭으로 나눠 봅니다.</p>
+        </div>
+      </div>
+      <div id="tv-board" style="height:520px"></div>
+    </section>
+
+    <section id="subscribe" class="grid grid-cols-1 lg:grid-cols-12 gap-5 items-start">
+      <div class="lg:col-span-5 lg:pt-2">
+        <p class="text-[11px] font-bold tracking-wide text-[#2563eb]">NEWSLETTER</p>
+        <h2 class="mt-2 text-2xl font-bold tracking-[-0.03em]">출근 전 1분이면 끝나는 시황</h2>
+        <p class="mt-3 text-sm leading-6 text-slate-600">선택한 분야만 담아, 고른 시각에 메일로 보내 드립니다. 차트에서 본 흐름을 문장 몇 줄로 다시 정리하는 브리핑입니다.</p>
+        <ul class="mt-5 space-y-3 text-sm text-slate-700">
+          <li class="flex gap-2"><span class="mt-1 h-1.5 w-1.5 rounded-full bg-[#2563eb] shrink-0"></span>환율·지수, 삼성·하이닉스, 빅테크, 양자컴퓨터 중 필요한 것만</li>
+          <li class="flex gap-2"><span class="mt-1 h-1.5 w-1.5 rounded-full bg-[#2563eb] shrink-0"></span>출근길, 점심, 퇴근길 중 하나의 발송 시각</li>
+          <li class="flex gap-2"><span class="mt-1 h-1.5 w-1.5 rounded-full bg-[#2563eb] shrink-0"></span>메일 하단 수신 거부 한 번으로 다음 발송부터 중단</li>
+        </ul>
+      </div>
+
+      <form id="subscribe-form" class="card lg:col-span-7 p-4 sm:p-6 space-y-5" novalidate>
+        <fieldset>
+          <legend class="text-sm font-bold mb-2">관심 분야</legend>
+          <div class="grid gap-2">
+            <label class="check-card">
+              <input type="checkbox" name="interest" value="macro">
+              <span><span class="block text-sm font-semibold">달러 환율 · 나스닥 · 코스피 · QQQ · S&amp;P500</span><span class="mt-0.5 block text-xs text-slate-500">매크로와 대표 지수 ETF를 한 묶음으로</span></span>
+            </label>
+            <label class="check-card">
+              <input type="checkbox" name="interest" value="krSemi">
+              <span><span class="block text-sm font-semibold">삼성전자 · SK하이닉스</span><span class="mt-0.5 block text-xs text-slate-500">국내 반도체 수급과 산업 코멘트</span></span>
+            </label>
+            <label class="check-card">
+              <input type="checkbox" name="interest" value="bigtech">
+              <span><span class="block text-sm font-semibold">애플 · 구글 · 테슬라 · X</span><span class="mt-0.5 block text-xs text-slate-500">미국 빅테크에서 오늘 가격을 움직이는 재료</span></span>
+            </label>
+            <label class="check-card">
+              <input type="checkbox" name="interest" value="quantum">
+              <span><span class="block text-sm font-semibold">양자컴퓨터 (아이온큐·리게티·디웨이브)</span><span class="mt-0.5 block text-xs text-slate-500">계약, 기술 이정표, 테마 수급을 분리해서</span></span>
+            </label>
+          </div>
+        </fieldset>
+
+        <fieldset>
+          <legend class="text-sm font-bold mb-2">발송 시각</legend>
+          <div class="time-row">
+            <label><input type="radio" name="timeSlot" value="0730">출근길 (07:30)</label>
+            <label><input type="radio" name="timeSlot" value="1200">점심시간 (12:00)</label>
+            <label><input type="radio" name="timeSlot" value="1830">퇴근길 (18:30)</label>
+          </div>
+        </fieldset>
+
+        <div>
+          <label class="block text-sm font-bold mb-2" for="email">이메일</label>
+          <input id="email" name="email" type="email" inputmode="email" autocomplete="email" maxlength="254" required placeholder="name@company.com" class="w-full rounded-xl border border-line bg-white px-3.5 py-3 text-sm outline-none focus:border-[#93c5fd] focus:ring-4 focus:ring-[#2563eb]/10">
+        </div>
+
+        <label class="check-card">
+          <input id="consent" name="consent" type="checkbox" value="yes">
+          <span class="text-sm leading-6"><span class="font-bold">[필수] 이메일 수집 및 뉴스레터 수신 동의</span><span class="mt-1 block text-xs text-slate-500">이메일, 관심 분야, 발송 시각은 연결한 Google Apps Script 웹앱으로 전송됩니다. 브리핑 발송과 수신 거부 처리 외의 목적으로 쓰지 않습니다.</span></span>
+        </label>
+
+        <button id="submit-btn" class="btn btn-primary w-full !py-3" type="submit">무료로 브리핑 받기</button>
+        <p class="text-center text-xs text-slate-500">광고 메일은 보내지 않습니다. 수신 거부는 메일 하단 링크로 바로 할 수 있습니다.</p>
+      </form>
+    </section>
+  </main>
+
+  <footer class="max-w-[1240px] mx-auto px-4 sm:px-6 pb-10 pt-2 text-xs leading-5 text-slate-500">
+    <p class="font-num font-bold text-slate-700">FINPULSE</p>
+    <p class="mt-1">시세와 차트는 TradingView 위젯입니다. 구독 정보는 Google Apps Script 웹앱으로 전달됩니다. 화면의 브리핑 문구는 정보 제공용이며 특정 상품의 매수·매도를 권하지 않습니다.</p>
+  </footer>
+
+  <div id="toasts" aria-live="polite" aria-relevant="additions"></div>
+  <div id="live-status" class="sr-only" aria-live="polite"></div>
+  <div id="mail-modal" class="modal-backdrop hidden" hidden></div>
+
+  <noscript>
+    <p class="max-w-[1240px] mx-auto px-4 py-6 text-sm">차트 전환, 뉴스 필터, 구독 신청을 쓰려면 JavaScript를 켜 주세요.</p>
+  </noscript>
+
+  <script>
+    // Public /exec deployment (clasp deployment "@2"). Used outside Apps Script (e.g. Live Server); inside it, google.script.run is used instead.
+    const GAS_WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbxnmgwGfg2gcr3hLQwIPzsxnR1h2xnjNQZbCL-cU5u4OoP3AIBTy90R6My_SSoJuLGp/exec';
+
+    const TABS = [
+      {
+        id: 'fx',
+        label: '환율 · 주요 지수',
+        symbols: [
+          { tv: 'FX_IDC:USDKRW', name: '달러/원', short: 'USD/KRW', keywords: ['환율', '원달러', 'usd', 'krw', '달러'] },
+          { tv: 'FOREXCOM:NSXUSD', name: '나스닥 100', short: 'NAS100', keywords: ['나스닥', 'nasdaq', 'nsx', '지수'] },
+          { tv: 'FOREXCOM:SPXUSD', name: 'S&P 500', short: 'SPX', keywords: ['에스앤피', 'spx', 's&p', 'snp', 'spy'] },
+          { tv: 'FOREXCOM:DJI', name: '다우존스', short: 'DJI', keywords: ['다우', 'dow', 'dji'] }
+        ]
+      },
+      {
+        id: 'etf',
+        label: '핵심 ETF (QQQ·SPY·SOXX)',
+        symbols: [
+          { tv: 'NASDAQ:QQQ', name: '나스닥 100 ETF', short: 'QQQ', keywords: ['큐큐큐', 'qqq', 'etf', '나스닥'] },
+          { tv: 'AMEX:SPY', name: 'S&P 500 ETF', short: 'SPY', keywords: ['스파이', 'spy', 'etf'] },
+          { tv: 'AMEX:DIA', name: '다우 ETF', short: 'DIA', keywords: ['dia', '다우', 'etf'] },
+          { tv: 'NASDAQ:SOXX', name: '반도체 ETF', short: 'SOXX', keywords: ['반도체', 'soxx', 'sox'] },
+          { tv: 'NASDAQ:TQQQ', name: '나스닥 3배 ETF', short: 'TQQQ', keywords: ['tqqq', '레버리지', '티큐'] }
+        ]
+      },
+      {
+        id: 'mega',
+        label: '미국 빅테크',
+        symbols: [
+          { tv: 'NASDAQ:AAPL', name: '애플', short: 'AAPL', keywords: ['애플', 'apple', 'aapl'] },
+          { tv: 'NASDAQ:GOOGL', name: '알파벳', short: 'GOOGL', keywords: ['구글', '알파벳', 'google', 'googl'] },
+          { tv: 'NASDAQ:TSLA', name: '테슬라', short: 'TSLA', keywords: ['테슬라', 'tesla', 'tsla'] },
+          { tv: 'NASDAQ:NVDA', name: '엔비디아', short: 'NVDA', keywords: ['엔비디아', 'nvidia', 'nvda', '반도체'] }
+        ]
+      },
+      {
+        id: 'quantum',
+        label: '양자컴퓨터',
+        symbols: [
+          { tv: 'NYSE:IONQ', name: '아이온큐', short: 'IONQ', keywords: ['아이온큐', 'ionq', '양자'] },
+          { tv: 'NASDAQ:RGTI', name: '리게티', short: 'RGTI', keywords: ['리게티', 'rigetti', 'rgti', '양자'] },
+          { tv: 'NASDAQ:QUBT', name: '퀀텀컴퓨팅', short: 'QUBT', keywords: ['퀀텀', 'qubt', '양자', 'quantum'] }
+        ]
+      }
+    ];
+
+    const INTERESTS = [
+      { id: 'macro', label: '달러 환율 · 나스닥 · 코스피 · QQQ · S&P500' },
+      { id: 'krSemi', label: '삼성전자 · SK하이닉스' },
+      { id: 'bigtech', label: '애플 · 구글 · 테슬라 · X' },
+      { id: 'quantum', label: '양자컴퓨터 (아이온큐·리게티·디웨이브)' }
+    ];
+
+    const TIME_SLOTS = [
+      { id: '0730', label: '출근길 (07:30)', line: '장 시작 전, 밤사이 선물과 환율의 방향만 맞추면 됩니다.' },
+      { id: '1200', label: '점심시간 (12:00)', line: '장중에는 시가의 방향이 유지되는지, 수급이 되돌려졌는지만 보면 됩니다.' },
+      { id: '1830', label: '퇴근길 (18:30)', line: '마감 수급과 오늘 밤 미국 장에서 볼 포인트만 남겼습니다.' }
+    ];
+
+    const BRIEFING = {
+      macro: {
+        eyebrow: '환율 · 지수',
+        title: '달러 · 나스닥 · 코스피 · QQQ · S&P500',
+        lede: '밤사이 위험자산과 원/달러가 같은 방향인지부터 확인합니다.',
+        bullets: [
+          '달러/원: 역외 선물과 서울 시가의 갭이 큰지 먼저 보고, 장 초반 수급이 그 갭을 따르는지 확인합니다.',
+          '나스닥100 · QQQ: 선물 등락이 반도체 ETF와 함께 움직이는지, 대형 기술주만 따로 움직이는지 구분합니다.',
+          'S&P500: 지수 선물이 위험선호인지 되돌림인지만 적고, 국내 장으로 이어질 시나리오를 한 줄로 정리합니다.',
+          '코스피: 외국인 선물 포지션과 환율 방향을 겹쳐 시가 직후 성격을 판단합니다.'
+        ]
+      },
+      krSemi: {
+        eyebrow: '국내 반도체',
+        title: '삼성전자 · SK하이닉스',
+        lede: '수급과 산업 코멘트, 두 가지만 보면 됩니다.',
+        bullets: [
+          '삼성전자: 외국인·기관 현물 방향과 고대역폭메모리·파운드리 헤드라인을 한 줄로 대조합니다.',
+          'SK하이닉스: 메모리 가격 코멘트와 필라델피아 반도체 지수의 overnight 흐름을 연결합니다.',
+          '두 종목이 같은 방향이면 섹터, 엇갈리면 종목 이슈로 나눠 읽습니다.'
+        ]
+      },
+      bigtech: {
+        eyebrow: '미국 빅테크',
+        title: '애플 · 구글 · 테슬라 · X',
+        lede: '오늘 가격을 움직이는 재료 하나만 남깁니다.',
+        bullets: [
+          '애플: 수요와 서비스 매출 코멘트 중 장을 주도하는 쪽만 표시합니다.',
+          '구글: 검색 광고와 클라우드 중 눈높이를 건드린 이슈가 있는지만 확인합니다.',
+          '테슬라: 인도, 마진, 신사업 일정 가운데 변동성을 만든 재료 하나만 적습니다.',
+          'X: 비상장 플랫폼이므로 광고·규제 헤드라인이 빅테크 심리에 번지는지만 따로 짚습니다.'
+        ]
+      },
+      quantum: {
+        eyebrow: '양자컴퓨터',
+        title: '아이온큐 · 리게티 · 디웨이브',
+        lede: '계약, 기술 이정표, 테마 수급을 분리합니다.',
+        bullets: [
+          '아이온큐: 상용 시스템 로드맵과 수주 공시가 있는지 먼저 봅니다.',
+          '리게티: 클라우드 사용량과 현금 흐름 코멘트를 우선합니다.',
+          '디웨이브: 양자 어닐링 상용 계약이 테마 수급으로 이어지는지 따로 표시합니다.',
+          '세 이름이 동반해서 움직이면 이벤트, 하나만 움직이면 해당 공시부터 확인합니다.'
+        ]
+      }
+    };
+
+    // ids match NEWS_CATEGORIES in Code.js; keys are a fallback for items without categoryId.
+    const NEWS_FILTERS = [
+      { id: 'all', label: '전체' },
+      { id: 'domestic', label: '국내 (삼성·하이닉스)', keys: ['삼성', '하이닉스', '반도체', 'hbm'] },
+      { id: 'global', label: '글로벌 (빅테크)', keys: ['애플', '구글', '테슬라', '엔비디아', '알파벳', '빅테크'] },
+      { id: 'macro', label: '환율·지수', keys: ['환율', '원달러', '나스닥', 's&p', '코스피', '달러', '지수'] },
+      { id: 'quantum', label: '양자컴퓨터', keys: ['양자', '아이온큐', '리게티', '디웨이브', '퀀텀', 'ionq'] }
+    ];
+
+    const NEWS_REFRESH_MS = 15 * 60 * 1000;
+    // Matches FORCE_REFRESH_MIN_INTERVAL_SECONDS in Code.js (the server enforces it; this just avoids pointless clicks).
+    const FORCE_REFRESH_COOLDOWN_SEC = 60;
+    const NEWS_NEW_WINDOW_MIN = 6 * 60;
+
+    function naverNewsSearch(query) {
+      return 'https://search.naver.com/search.naver?where=news&sort=1&query=' + encodeURIComponent(query);
+    }
+    function googleNewsSearch(query) {
+      return 'https://news.google.com/search?q=' + encodeURIComponent(query + ' when:1d') + '&hl=ko&gl=KR&ceid=KR:ko';
+    }
+
+    // Shown before the web app is connected. Each URL searches exactly the keywords in its own title.
+    const DEFAULT_NEWS = [
+      { categoryId: 'macro', category: '환율·지수', tag: '시황', title: '원달러 환율, 역외 선물과 서울 시가의 갭부터 확인', source: '네이버 뉴스 검색', url: naverNewsSearch('원달러 환율 역외 선물'), time: '12분 전' },
+      { categoryId: 'macro', category: '환율·지수', tag: '지수', title: '나스닥·코스피, 선물 방향이 국내 갭으로 이어지는지', source: 'Google 뉴스 검색', url: googleNewsSearch('나스닥 코스피 선물'), time: '28분 전' },
+      { categoryId: 'domestic', category: '국내 (삼성·하이닉스)', tag: '국내', title: '삼성전자, 외국인 수급과 HBM 헤드라인', source: '네이버 뉴스 검색', url: naverNewsSearch('삼성전자 외국인 HBM'), time: '46분 전' },
+      { categoryId: 'domestic', category: '국내 (삼성·하이닉스)', tag: '국내', title: 'SK하이닉스, 메모리 가격 전망이 섹터 온도를 좌우', source: '네이버 뉴스 검색', url: naverNewsSearch('SK하이닉스 메모리 가격'), time: '1시간 전' },
+      { categoryId: 'global', category: '글로벌 (빅테크)', tag: '글로벌', title: '엔비디아, AI 칩 수요 코멘트에 쏠린 시선', source: 'Google 뉴스 검색', url: googleNewsSearch('엔비디아 AI 칩 수요'), time: '1시간 전' },
+      { categoryId: 'global', category: '글로벌 (빅테크)', tag: '글로벌', title: '애플·구글·테슬라, 실적 멘트와 규제 헤드라인 분리', source: 'Google 뉴스 검색', url: googleNewsSearch('애플 구글 테슬라 규제'), time: '2시간 전' },
+      { categoryId: 'quantum', category: '양자컴퓨터', tag: '테마', title: '아이온큐, 상용 로드맵과 수주 공시', source: '네이버 뉴스 검색', url: naverNewsSearch('아이온큐 수주'), time: '3시간 전' },
+      { categoryId: 'quantum', category: '양자컴퓨터', tag: '테마', title: '양자컴퓨터 테마, 동반 급등과 개별 공시 구분', source: 'Google 뉴스 검색', url: googleNewsSearch('양자컴퓨터 관련주'), time: '4시간 전' }
+    ];
+
+    const SYMBOLS = TABS.flatMap((tab) => tab.symbols.map((symbol) => ({ ...symbol, tab: tab.id, tabLabel: tab.label })));
+    const symbolByTv = Object.fromEntries(SYMBOLS.map((symbol) => [symbol.tv, symbol]));
+
+    let activeTab = 'fx';
+    let activeSymbol = 'FX_IDC:USDKRW';
+    let newsItems = [];
+    let newsFilter = 'all';
+    let newsMeta = { sample: true, updatedAt: '' };
+    let newsLoading = false;
+    let newsLastFetch = 0;
+    let refreshCooldownUntil = 0;
+    let refreshCooldownTimer = null;
+
+    // Disables the refresh button for `seconds`, showing the countdown in its tooltip/label.
+    function startRefreshCooldown(seconds) {
+      const button = document.getElementById('feed-refresh');
+      refreshCooldownUntil = Date.now() + seconds * 1000;
+      clearInterval(refreshCooldownTimer);
+      const tick = () => {
+        const left = Math.ceil((refreshCooldownUntil - Date.now()) / 1000);
+        if (left <= 0) {
+          clearInterval(refreshCooldownTimer);
+          button.disabled = newsLoading;
+          button.title = '';
+          button.setAttribute('aria-label', '뉴스 피드 새로고침');
+          return;
+        }
+        button.disabled = true;
+        button.title = left + '초 후 다시 새로고침할 수 있습니다';
+        button.setAttribute('aria-label', '뉴스 피드 새로고침 (' + left + '초 후 가능)');
+      };
+      tick();
+      refreshCooldownTimer = setInterval(tick, 1000);
+    }
+    let searchCursor = -1;
+    let lastFocus = null;
+
+    function isGasConfigured() {
+      const url = String(GAS_WEB_APP_URL || '').trim();
+      if (!url || url === 'YOUR_GOOGLE_APPS_SCRIPT_WEB_APP_URL') return false;
+      return url.startsWith('http://') || url.startsWith('https://');
+    }
+
+    function esc(value) {
+      return String(value ?? '')
+        .replaceAll('&', '&amp;')
+        .replaceAll('<', '&lt;')
+        .replaceAll('>', '&gt;')
+        .replaceAll('"', '&quot;')
+        .replaceAll("'", '&#39;');
+    }
+
+    function safeUrl(value) {
+      try {
+        const url = new URL(String(value), window.location.href);
+        if (url.protocol === 'http:' || url.protocol === 'https:') return url.href;
+      } catch (error) {
+        return '';
+      }
+      return '';
+    }
+
+    function showToast(message, type) {
+      const root = document.getElementById('toasts');
+      const toast = document.createElement('div');
+      toast.className = 'toast ' + (type || 'info');
+      toast.innerHTML = '<p class="text-sm leading-5 text-slate-800 flex-1">' + esc(message) + '</p><button type="button" class="text-slate-400 text-lg leading-none" aria-label="알림 닫기">&times;</button>';
+      toast.querySelector('button').addEventListener('click', () => toast.remove());
+      root.appendChild(toast);
+      document.getElementById('live-status').textContent = message;
+      while (root.children.length > 3) root.firstElementChild.remove();
+      setTimeout(() => toast.remove(), 4600);
+    }
+
+    function clockParts(timeZone) {
+      const parts = Object.fromEntries(new Intl.DateTimeFormat('en-US', {
+        timeZone,
+        weekday: 'short',
+        hour: '2-digit',
+        minute: '2-digit',
+        hourCycle: 'h23'
+      }).formatToParts(new Date()).map((part) => [part.type, part.value]));
+      return {
+        weekend: parts.weekday === 'Sat' || parts.weekday === 'Sun',
+        mins: Number(parts.hour) * 60 + Number(parts.minute)
+      };
+    }
+
+    function sessionChip(name, open, weekend) {
+      const label = weekend ? '휴장' : open ? '정규장' : '장마감';
+      const dot = open ? 'bg-emerald-500' : 'bg-slate-300';
+      return '<span class="inline-flex items-center gap-1.5 rounded-full border border-line bg-white px-2.5 py-1"><span class="h-1.5 w-1.5 rounded-full ' + dot + '"></span>' + name + ' ' + label + '</span>';
+    }
+
+    function renderClock() {
+      const seoul = clockParts('Asia/Seoul');
+      const ny = clockParts('America/New_York');
+      const seoulOpen = !seoul.weekend && seoul.mins >= 9 * 60 && seoul.mins < 15 * 60 + 30;
+      const nyOpen = !ny.weekend && ny.mins >= 9 * 60 + 30 && ny.mins < 16 * 60;
+      const now = new Intl.DateTimeFormat('ko-KR', {
+        timeZone: 'Asia/Seoul',
+        month: 'long',
+        day: 'numeric',
+        weekday: 'short',
+        hour: '2-digit',
+        minute: '2-digit',
+        hourCycle: 'h23'
+      }).format(new Date());
+      document.getElementById('market-clock').innerHTML =
+        '<span class="inline-flex items-center rounded-full border border-line bg-white px-2.5 py-1 font-num">' + esc(now) + ' KST</span>' +
+        sessionChip('서울', seoulOpen, seoul.weekend) +
+        sessionChip('뉴욕', nyOpen, ny.weekend);
+    }
+
+    function findSymbol(tv) {
+      return symbolByTv[tv] || null;
+    }
+
+    function renderPills() {
+      const tab = TABS.find((item) => item.id === activeTab);
+      const host = document.getElementById('chart-pills');
+      host.innerHTML = tab.symbols.map((symbol) => {
+        const pressed = symbol.tv === activeSymbol ? 'true' : 'false';
+        return '<button type="button" class="pill font-num" data-symbol="' + esc(symbol.tv) + '" aria-pressed="' + pressed + '">' + esc(symbol.short) + ' · ' + esc(symbol.name) + '</button>';
+      }).join('');
+    }
+
+    function updateCaption(symbol) {
+      document.getElementById('chart-caption').textContent = symbol.name + ' · ' + symbol.short + ' · ' + symbol.tv;
+    }
+
+    // TradingView embeds read their config from the <script> body; building them here keeps that JSON out of the HTML,
+    // where the editor parses it as JavaScript and reports false "';' expected" errors.
+    function mountTvWidget(host, name, config) {
+      host.replaceChildren();
+      const container = document.createElement('div');
+      container.className = 'tradingview-widget-container';
+      container.style.height = '100%';
+      const widget = document.createElement('div');
+      widget.className = 'tradingview-widget-container__widget';
+      widget.style.height = '100%';
+      const script = document.createElement('script');
+      script.src = 'https://s3.tradingview.com/external-embedding/embed-widget-' + name + '.js';
+      script.type = 'text/javascript';
+      script.async = true;
+      script.textContent = JSON.stringify(config);
+      script.onerror = () => {
+        host.insertAdjacentHTML('beforeend', '<p class="p-4 text-sm text-slate-500">시세를 불러오지 못했습니다. 네트워크 연결을 확인해 주세요.</p>');
+      };
+      container.append(widget, script);
+      host.append(container);
+    }
+
+    function renderStaticWidgets() {
+      mountTvWidget(document.getElementById('tv-tape'), 'ticker-tape', {
+        symbols: [
+          { proName: 'FX_IDC:USDKRW', title: '달러/원' },
+          { proName: 'FOREXCOM:NSXUSD', title: '나스닥100' },
+          { proName: 'FOREXCOM:SPXUSD', title: 'S&P 500' },
+          { proName: 'NASDAQ:QQQ', title: 'QQQ' },
+          { proName: 'AMEX:SPY', title: 'SPY' },
+          { proName: 'AMEX:DIA', title: 'DIA' },
+          { proName: 'NASDAQ:SOXX', title: 'SOXX' },
+          { proName: 'NASDAQ:NVDA', title: '엔비디아' },
+          { proName: 'NASDAQ:AAPL', title: '애플' },
+          { proName: 'NASDAQ:GOOGL', title: '알파벳' },
+          { proName: 'NASDAQ:TSLA', title: '테슬라' },
+          { proName: 'NYSE:IONQ', title: '아이온큐' },
+          { proName: 'NASDAQ:RGTI', title: '리게티' },
+          { proName: 'NASDAQ:QUBT', title: '퀀텀컴퓨팅' }
+        ],
+        showSymbolLogo: true,
+        isTransparent: false,
+        // 'adaptive' switches to a taller multi-line layout on phones that gets clipped; compact stays one line.
+        displayMode: 'compact',
+        colorTheme: 'light',
+        locale: 'kr'
+      });
+
+      document.querySelectorAll('[data-tv-quote]').forEach((slot) => {
+        mountTvWidget(slot, 'single-quote', {
+          symbol: slot.dataset.tvQuote,
+          width: '100%',
+          isTransparent: true,
+          colorTheme: 'light',
+          locale: 'kr'
+        });
+      });
+
+      mountTvWidget(document.getElementById('tv-board'), 'market-quotes', {
+        width: '100%',
+        height: 520,
+        symbolsGroups: [
+          {
+            name: '글로벌 빅테크 대기업',
+            originalName: '글로벌 빅테크 대기업',
+            symbols: [
+              { name: 'NASDAQ:AAPL', displayName: '애플' },
+              { name: 'NASDAQ:GOOGL', displayName: '알파벳' },
+              { name: 'NASDAQ:TSLA', displayName: '테슬라' },
+              { name: 'NASDAQ:NVDA', displayName: '엔비디아' },
+              { name: 'NASDAQ:MSFT', displayName: '마이크로소프트' },
+              { name: 'NASDAQ:AMZN', displayName: '아마존' }
+            ]
+          },
+          {
+            name: '양자컴퓨터 혁신 기업',
+            originalName: '양자컴퓨터 혁신 기업',
+            symbols: [
+              { name: 'NYSE:IONQ', displayName: '아이온큐' },
+              { name: 'NASDAQ:RGTI', displayName: '리게티' },
+              { name: 'NASDAQ:QUBT', displayName: '퀀텀컴퓨팅' }
+            ]
+          },
+          {
+            name: '대표 지수 ETF & 반도체',
+            originalName: '대표 지수 ETF & 반도체',
+            symbols: [
+              { name: 'NASDAQ:QQQ', displayName: 'QQQ' },
+              { name: 'AMEX:SPY', displayName: 'SPY' },
+              { name: 'AMEX:DIA', displayName: 'DIA' },
+              { name: 'NASDAQ:SOXX', displayName: 'SOXX' }
+            ]
+          }
+        ],
+        showSymbolLogo: true,
+        isTransparent: false,
+        colorTheme: 'light',
+        locale: 'kr'
+      });
+    }
+
+    const wideChart = window.matchMedia('(min-width: 640px)');
+
+    function renderAdvancedChart(tv) {
+      mountTvWidget(document.getElementById('chart-host'), 'advanced-chart', {
+        autosize: true,
+        symbol: tv,
+        interval: 'D',
+        timezone: 'Asia/Seoul',
+        theme: 'light',
+        style: '1',
+        locale: 'kr',
+        backgroundColor: '#ffffff',
+        gridColor: 'rgba(226, 232, 240, 0.65)',
+        hide_top_toolbar: false,
+        hide_legend: false,
+        // The drawing toolbar takes ~60px of a ~320px phone chart; hide it below 640px.
+        hide_side_toolbar: !wideChart.matches,
+        allow_symbol_change: false,
+        save_image: false,
+        withdateranges: wideChart.matches,
+        details: false,
+        hotlist: false,
+        calendar: false,
+        studies: ['STD;SMA'],
+        support_host: 'https://www.tradingview.com'
+      });
+    }
+
+    function focusSymbol(tv, options) {
+      const symbol = findSymbol(tv);
+      if (!symbol) {
+        showToast('메인 차트에서 지원하는 심볼이 아닙니다.', 'error');
+        return;
+      }
+      const scroll = !options || options.scroll !== false;
+      activeTab = symbol.tab;
+      activeSymbol = symbol.tv;
+      document.querySelectorAll('#chart-tabs .tab').forEach((tab) => {
+        tab.setAttribute('aria-selected', tab.dataset.tab === activeTab ? 'true' : 'false');
+      });
+      renderPills();
+      updateCaption(symbol);
+      renderAdvancedChart(symbol.tv);
+      document.getElementById('live-status').textContent = '메인 차트를 ' + symbol.name + '으로 바꿨습니다.';
+      try {
+        const url = new URL(window.location.href);
+        url.searchParams.set('symbol', symbol.tv);
+        history.replaceState(null, '', url);
+      } catch (error) {
+        /* Apps Script iframe may block history updates. */
+      }
+      if (scroll) document.getElementById('chart-panel').scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+
+    function searchQueryResults(query) {
+      const needle = query.trim().toLowerCase();
+      if (!needle) return [];
+      return SYMBOLS.filter((symbol) => {
+        const blob = [symbol.name, symbol.short, symbol.tv, symbol.tabLabel, ...(symbol.keywords || [])].join(' ').toLowerCase();
+        return blob.includes(needle);
+      }).slice(0, 8);
+    }
+
+    function renderSearch(query) {
+      const list = document.getElementById('search-list');
+      const input = document.getElementById('symbol-search');
+      const results = searchQueryResults(query);
+      searchCursor = results.length ? 0 : -1;
+      if (!query.trim()) {
+        list.classList.add('hidden');
+        list.innerHTML = '';
+        input.setAttribute('aria-expanded', 'false');
+        return;
+      }
+      list.classList.remove('hidden');
+      input.setAttribute('aria-expanded', 'true');
+      if (!results.length) {
+        list.innerHTML = '<p class="px-3 py-3 text-sm text-slate-500">해당하는 심볼이 없습니다.</p>';
+        return;
+      }
+      list.innerHTML = results.map((symbol, index) => (
+        '<button type="button" class="search-item" role="option" data-symbol="' + esc(symbol.tv) + '" aria-selected="' + (index === 0 ? 'true' : 'false') + '">' +
+          '<span><span class="block text-sm font-semibold">' + esc(symbol.name) + '</span><span class="font-num text-[11px] text-slate-400">' + esc(symbol.short) + ' · ' + esc(symbol.tv) + '</span></span>' +
+          '<span class="text-[11px] text-slate-400 self-center">' + esc(symbol.tabLabel) + '</span>' +
+        '</button>'
+      )).join('');
+    }
+
+    function moveSearch(step) {
+      const options = [...document.querySelectorAll('#search-list .search-item')];
+      if (!options.length) return;
+      searchCursor = (searchCursor + step + options.length) % options.length;
+      options.forEach((option, index) => option.setAttribute('aria-selected', index === searchCursor ? 'true' : 'false'));
+      options[searchCursor].scrollIntoView({ block: 'nearest' });
+    }
+
+    function chooseSearch(tv) {
+      const input = document.getElementById('symbol-search');
+      document.getElementById('search-list').classList.add('hidden');
+      input.setAttribute('aria-expanded', 'false');
+      input.value = '';
+      focusSymbol(tv);
+    }
+
+    function normalizeNews(item) {
+      return {
+        categoryId: item.categoryId || '',
+        category: item.category || '기타',
+        tag: item.tag || '이슈',
+        title: item.title || '제목 없는 기사',
+        source: item.source || '출처 미상',
+        url: item.url || '',
+        time: item.time || ''
+      };
+    }
+
+    function formatNewsTime(value) {
+      if (!value) return '';
+      const date = new Date(value);
+      if (Number.isNaN(date.getTime()) || String(value).indexOf('전') !== -1) return String(value);
+      const mins = Math.round((Date.now() - date.getTime()) / 60000);
+      if (mins < 1) return '방금 전';
+      if (mins < 60) return mins + '분 전';
+      const hours = Math.round(mins / 60);
+      if (hours < 24) return hours + '시간 전';
+      return new Intl.DateTimeFormat('ko-KR', {
+        timeZone: 'Asia/Seoul',
+        month: 'short',
+        day: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit',
+        hourCycle: 'h23'
+      }).format(date);
+    }
+
+    // Minutes since publication; understands ISO dates and the sample feed's "N분 전 / N시간 전".
+    function newsAgeMinutes(value) {
+      const text = String(value || '');
+      const relative = text.match(/^(\d+)\s*(분|시간)\s*전$/);
+      if (relative) return Number(relative[1]) * (relative[2] === '시간' ? 60 : 1);
+      const time = Date.parse(text);
+      return Number.isNaN(time) ? Infinity : Math.max(0, (Date.now() - time) / 60000);
+    }
+
+    function todayLabel() {
+      return new Intl.DateTimeFormat('ko-KR', { timeZone: 'Asia/Seoul', month: 'long', day: 'numeric' }).format(new Date());
+    }
+
+    function newsMatches(item, filter) {
+      if (filter.id === 'all') return true;
+      if (item.categoryId) return item.categoryId === filter.id;
+      if (item.category === filter.label) return true;
+      const blob = (item.category + ' ' + item.tag + ' ' + item.title).toLowerCase();
+      return (filter.keys || []).some((key) => blob.includes(key.toLowerCase()));
+    }
+
+    function renderNewsFilters() {
+      document.getElementById('news-filters').innerHTML = NEWS_FILTERS.map((filter) => (
+        '<button type="button" class="chip" data-filter="' + filter.id + '" aria-pressed="' + (filter.id === newsFilter ? 'true' : 'false') + '">' + esc(filter.label) + '</button>'
+      )).join('');
+    }
+
+    function renderNews() {
+      const filter = NEWS_FILTERS.find((item) => item.id === newsFilter) || NEWS_FILTERS[0];
+      const rows = newsItems.filter((item) => newsMatches(item, filter));
+      const list = document.getElementById('news-list');
+      const status = document.getElementById('feed-status');
+      if (newsMeta.sample) {
+        status.textContent = todayLabel() + ' · 예시 피드 ' + newsItems.length + '건 · 웹앱을 연결하면 실시간 뉴스로 바뀝니다.';
+      } else {
+        const when = newsMeta.updatedAt ? formatNewsTime(newsMeta.updatedAt) : '방금';
+        const fresh = newsItems.filter((item) => newsAgeMinutes(item.time) <= NEWS_NEW_WINDOW_MIN).length;
+        status.textContent = todayLabel() + ' 뉴스 ' + newsItems.length + '건' + (fresh ? ' (NEW ' + fresh + ')' : '') + ' · 업데이트 ' + when;
+      }
+      if (!rows.length) {
+        list.innerHTML = '<p class="py-8 text-center text-sm text-slate-500">이 분류의 이슈가 없습니다.</p>';
+        return;
+      }
+      list.innerHTML = rows.map((item) => {
+        const href = safeUrl(item.url);
+        const isNew = newsAgeMinutes(item.time) <= NEWS_NEW_WINDOW_MIN;
+        const body =
+          '<div class="flex items-center gap-2 text-[11px]">' +
+            (isNew ? '<span class="news-new">NEW</span>' : '') +
+            '<span class="tag">' + esc(item.tag) + '</span>' +
+            '<span class="text-slate-500 truncate">' + esc(item.category) + '</span>' +
+            '<span class="ml-auto shrink-0 font-num text-slate-400">' + esc(formatNewsTime(item.time)) + '</span>' +
+          '</div>' +
+          '<h3 class="mt-1.5 text-sm font-semibold leading-5">' + esc(item.title) + '</h3>' +
+          '<p class="mt-1 text-xs text-slate-500">' + esc(item.source) + '</p>';
+        return href
+          ? '<article class="news-item"><a class="news-link-card" href="' + esc(href) + '" target="_blank" rel="noopener noreferrer" aria-label="' + esc(item.title + ' (새 탭에서 원문 열기)') + '">' + body + '<span class="news-open" aria-hidden="true">원문 보기 ↗</span></a></article>'
+          : '<article class="news-item"><div class="news-static">' + body + '</div></article>';
+      }).join('');
+    }
+
+    function applyNews(items, meta) {
+      newsItems = (items || []).map(normalizeNews);
+      newsMeta = meta;
+      renderNews();
+    }
+
+    // Inside the Apps Script page google.script.run works without a URL; elsewhere (Live Server etc.) use the web app URL.
+    function loadFeed(refresh) {
+      if (hasGoogleScriptRun()) {
+        return new Promise((resolve, reject) => {
+          google.script.run.withSuccessHandler(resolve).withFailureHandler(reject).getNewsFeed(refresh);
+        });
+      }
+      if (!isGasConfigured()) return Promise.resolve(null);
+      const url = GAS_WEB_APP_URL + '?action=getFeed' + (refresh ? '&refresh=true' : '') + '&_=' + Date.now();
+      return fetch(url, { method: 'GET', cache: 'no-store' }).then((response) => {
+        if (!response.ok) throw new Error('HTTP ' + response.status);
+        return response.text();
+      }).then((text) => JSON.parse(text));
+    }
+
+    async function fetchCrawledNewsFromGAS(options) {
+      const opts = options || {};
+      if (newsLoading) return;
+      const button = document.getElementById('feed-refresh');
+      newsLoading = true;
+      button.disabled = true;
+      if (!opts.background) document.getElementById('feed-status').textContent = '최신 뉴스를 불러오는 중…';
+      try {
+        const data = await loadFeed(!!opts.refresh);
+        newsLastFetch = Date.now();
+        if (!data) {
+          applyNews(DEFAULT_NEWS, { sample: true, updatedAt: '' });
+          return;
+        }
+        if (data.status !== 'success' || !Array.isArray(data.news)) {
+          throw new Error(data.message || '피드 형식이 올바르지 않습니다.');
+        }
+        if (data.news.length) {
+          applyNews(data.news, { sample: false, updatedAt: data.updatedAt || '' });
+        } else if (newsMeta.sample) {
+          applyNews(DEFAULT_NEWS, { sample: true, updatedAt: '' });
+        }
+        if (opts.refresh) {
+          if (data.throttled) {
+            const wait = Number(data.retryAfter) || FORCE_REFRESH_COOLDOWN_SEC;
+            showToast('방금 수집한 최신 뉴스입니다. ' + wait + '초 후 다시 강제 갱신할 수 있습니다.', 'info');
+            startRefreshCooldown(wait);
+          } else {
+            showToast('뉴스를 새로 수집했습니다.', 'success');
+            startRefreshCooldown(FORCE_REFRESH_COOLDOWN_SEC);
+          }
+        }
+      } catch (error) {
+        // Keep real news already on screen; only fall back to samples when there is nothing yet.
+        if (!newsItems.length || newsMeta.sample) applyNews(DEFAULT_NEWS, { sample: true, updatedAt: '' });
+        else renderNews();
+        if (!opts.background) showToast('실시간 피드를 불러오지 못했습니다. 잠시 후 다시 시도해 주세요.', 'info');
+      } finally {
+        newsLoading = false;
+        button.disabled = Date.now() < refreshCooldownUntil;
+      }
+    }
+
+    function seoulDateLabel() {
+      return new Intl.DateTimeFormat('ko-KR', {
+        timeZone: 'Asia/Seoul',
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric',
+        weekday: 'short'
+      }).format(new Date());
+    }
+
+    function readForm() {
+      const email = document.getElementById('email').value.trim();
+      const interestIds = [...document.querySelectorAll('input[name="interest"]:checked')].map((input) => input.value);
+      const timeInput = document.querySelector('input[name="timeSlot"]:checked');
+      return {
+        email,
+        interestIds,
+        timeId: timeInput ? timeInput.value : '',
+        consent: document.getElementById('consent').checked
+      };
+    }
+
+    function interestLabels(ids) {
+      return ids.map((id) => (INTERESTS.find((item) => item.id === id) || {}).label).filter(Boolean);
+    }
+
+    function renderMiniPreview() {
+      const form = readForm();
+      const ids = form.interestIds.length ? form.interestIds : INTERESTS.map((item) => item.id);
+      const time = TIME_SLOTS.find((item) => item.id === form.timeId);
+      const first = BRIEFING[ids[0]];
+      const subject = '[FINPULSE] ' + seoulDateLabel() + ' ' + (time ? time.label : '1분') + ' AI 브리핑';
+      const note = form.interestIds.length
+        ? '선택한 ' + form.interestIds.length + '개 분야만 메일에 담습니다.'
+        : '관심 분야를 고르면 해당 섹션만 발송됩니다. 지금은 전체 샘플입니다.';
+      document.getElementById('mini-mail').innerHTML =
+        '<div class="rounded-xl border border-line overflow-hidden">' +
+          '<div class="bg-[#2563eb] text-white px-3.5 py-3"><p class="text-[11px] font-semibold opacity-80">제목</p><p class="text-sm font-bold leading-5">' + esc(subject) + '</p></div>' +
+          '<div class="px-3.5 py-3"><p class="text-xs text-slate-500">' + esc(note) + '</p><p class="mt-2 text-sm font-semibold">' + esc(first.title) + '</p><p class="mt-1 text-sm leading-5 text-slate-600">' + esc(first.bullets[0]) + '</p><div class="mt-3 flex flex-wrap gap-1.5">' +
+            ids.map((id) => '<span class="tag">' + esc(BRIEFING[id].eyebrow) + '</span>').join('') +
+          '</div></div></div>';
+    }
+
+    function letterHtml(payload) {
+      const time = TIME_SLOTS.find((item) => item.id === payload.timeId) || TIME_SLOTS[0];
+      const ids = payload.interestIds.length ? payload.interestIds : INTERESTS.map((item) => item.id);
+      const emptySample = payload.interestIds.length === 0;
+      const subject = '[FINPULSE] ' + seoulDateLabel() + ' ' + time.label + ' AI 브리핑';
+      const sections = ids.map((id) => {
+        const section = BRIEFING[id];
+        return '<section class="letter-section"><p class="text-[11px] font-bold text-[#2563eb]">' + esc(section.eyebrow) + '</p><h3 class="mt-1 text-base font-bold">' + esc(section.title) + '</h3><p class="mt-1 text-sm text-slate-600">' + esc(section.lede) + '</p><ul class="mt-2 space-y-1.5 text-sm leading-6 text-slate-700">' +
+          section.bullets.map((bullet) => '<li class="flex gap-2"><span class="mt-2 h-1 w-1 rounded-full bg-[#2563eb] shrink-0"></span><span>' + esc(bullet) + '</span></li>').join('') +
+          '</ul></section>';
+      }).join('');
+      const banner = emptySample
+        ? '<p class="mb-3 rounded-xl bg-[#eff6ff] px-3 py-2 text-xs leading-5 text-[#1e3a8a]">선택된 관심 분야가 없어 전체 섹션을 샘플로 보여 드립니다. 구독 폼에서 고르면 해당 섹션만 구성됩니다.</p>'
+        : '<p class="mb-3 text-xs text-slate-500">선택한 ' + ids.length + '개 분야만 담았습니다.</p>';
+      return {
+        subject,
+        html: banner +
+          '<div class="rounded-xl bg-slate-50 border border-line px-3 py-2.5 text-xs leading-6 text-slate-600">' +
+            '<p><span class="text-slate-400">보낸 사람</span> FINPULSE Briefing · briefing@finpulse.ai</p>' +
+            '<p><span class="text-slate-400">받는 사람</span> <span class="font-num">' + esc(payload.email || 'you@example.com') + '</span></p>' +
+            '<p><span class="text-slate-400">제목</span> ' + esc(subject) + '</p>' +
+          '</div>' +
+          '<article class="letter mt-3">' +
+            '<header class="letter-hero"><p class="font-num text-xs font-bold tracking-[0.14em] opacity-80">FINPULSE</p><h3 class="mt-1 text-xl font-bold">1분 AI 브리핑</h3><p class="mt-1 text-sm opacity-90">' + esc(seoulDateLabel()) + ' · ' + esc(time.label) + '</p></header>' +
+            '<div class="px-4 sm:px-5 py-4"><p class="text-sm leading-6 text-slate-700">' + esc(time.line) + '</p>' + sections +
+              '<p class="mt-4 text-[11px] leading-5 text-slate-400">본 메일은 투자 권유가 아니며, 시장을 짧게 이해하기 위한 정보 요약입니다. 거래 판단과 그 결과는 수신자에게 있습니다.</p>' +
+              '<p class="mt-3 border-t border-line pt-3 text-[11px] leading-5 text-slate-500">더 이상 브리핑을 받지 않으려면 ' +
+                (safeUrl(payload.unsubscribeUrl)
+                  // Real signed link from Code.js buildUnsubscribeUrl(); opens the confirmation page.
+                  ? '<a href="' + esc(safeUrl(payload.unsubscribeUrl)) + '" target="_blank" rel="noopener noreferrer" data-unsubscribe data-live="1" class="text-[#2563eb] font-semibold underline">수신 거부</a>'
+                  : '<a href="#unsubscribe" data-unsubscribe class="text-[#2563eb] font-semibold underline">수신 거부</a>') +
+              '</p>' +
+            '</div></article>'
+      };
+    }
+
+    function openMailModal(payload) {
+      const modal = document.getElementById('mail-modal');
+      const letter = letterHtml(payload);
+      lastFocus = document.activeElement;
+      modal.hidden = false;
+      modal.classList.remove('hidden');
+      modal.innerHTML =
+        '<div class="modal-panel" role="dialog" aria-modal="true" aria-labelledby="mail-title">' +
+          '<div class="flex items-center justify-between gap-3 px-4 sm:px-5 py-3 border-b border-line">' +
+            '<h2 id="mail-title" class="text-sm font-bold">메일 미리보기</h2>' +
+            '<button type="button" data-close class="btn btn-ghost !px-2.5" aria-label="미리보기 닫기">닫기</button>' +
+          '</div>' +
+          '<div class="scroll overflow-auto px-4 sm:px-5 py-4 bg-[#f8fafc]">' + letter.html + '</div>' +
+        '</div>';
+      document.body.style.overflow = 'hidden';
+      modal.querySelector('[data-close]').focus();
+    }
+
+    function closeMailModal() {
+      const modal = document.getElementById('mail-modal');
+      modal.classList.add('hidden');
+      modal.hidden = true;
+      modal.innerHTML = '';
+      document.body.style.overflow = '';
+      if (lastFocus && typeof lastFocus.focus === 'function') lastFocus.focus();
+    }
+
+    function modalPayloadFromForm(sampleEmail) {
+      const form = readForm();
+      return {
+        email: form.email || sampleEmail || 'you@example.com',
+        interestIds: form.interestIds.slice(),
+        timeId: form.timeId || '0730'
+      };
+    }
+
+    function validateForm(form) {
+      if (!isValidEmail(form.email)) return '올바른 이메일 주소를 입력해 주세요.';
+      if (!form.interestIds.length) return '관심 분야를 하나 이상 선택해 주세요.';
+      if (!form.timeId) return '발송 시각을 선택해 주세요.';
+      if (!form.consent) return '이메일 수집 및 뉴스레터 수신 동의가 필요합니다.';
+      return '';
+    }
+
+    function isValidEmail(value) {
+      return /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(value);
+    }
+
+    function hasGoogleScriptRun() {
+      return !!(window.google && google.script && google.script.run);
+    }
+
+    // Inside the Apps Script page: call subscribe()/unsubscribe() directly. Elsewhere: POST to the web app URL
+    // as text/plain (no CORS preflight, which Apps Script can't answer).
+    function postToGas(payload) {
+      if (hasGoogleScriptRun()) {
+        return new Promise((resolve, reject) => {
+          const runner = google.script.run
+            .withSuccessHandler(resolve)
+            .withFailureHandler((error) => reject(new Error(error && error.message ? error.message : String(error))));
+          if (payload.action === 'unsubscribe') runner.unsubscribe(payload);
+          else runner.subscribe(payload);
+        });
+      }
+      return fetch(GAS_WEB_APP_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+        body: JSON.stringify(payload)
+      }).then(async (response) => {
+        try {
+          return JSON.parse(await response.text());
+        } catch (parseError) {
+          throw new Error('응답을 해석하지 못했습니다. 웹앱 배포 권한을 확인해 주세요.');
+        }
+      });
+    }
+
+    async function submitSubscription(event) {
+      event.preventDefault();
+      const formState = readForm();
+      const problem = validateForm(formState);
+      if (problem) {
+        showToast(problem, 'error');
+        return;
+      }
+      const snapshot = {
+        email: formState.email,
+        interestIds: formState.interestIds.slice(),
+        timeId: formState.timeId
+      };
+      // Server (Code.js validateSubscription_) checks the ids; labels are for readability in the sheet.
+      const payload = {
+        action: 'subscribe',
+        email: formState.email,
+        interestIds: formState.interestIds.slice(),
+        interests: interestLabels(formState.interestIds),
+        timeId: formState.timeId,
+        timeSlot: TIME_SLOTS.find((item) => item.id === formState.timeId).label,
+        consent: true
+      };
+      if (!hasGoogleScriptRun() && !isGasConfigured()) {
+        showToast('웹앱 URL이 아직 설정되지 않아 서버에는 저장하지 않았습니다. 미리보기만 엽니다.', 'info');
+        openMailModal(snapshot);
+        return;
+      }
+      const button = document.getElementById('submit-btn');
+      button.disabled = true;
+      button.textContent = '접수 중…';
+      try {
+        const data = await postToGas(payload);
+        if (data.status !== 'success') {
+          showToast(data.message || '구독 신청을 처리하지 못했습니다.', 'error');
+          return;
+        }
+        showToast(data.message || '브리핑 구독이 접수되었습니다.', 'success');
+        openMailModal({ ...snapshot, unsubscribeUrl: data.unsubscribeUrl || '' });
+        document.getElementById('subscribe-form').reset();
+        renderMiniPreview();
+      } catch (error) {
+        showToast(error.message || '서버에 연결하지 못했습니다. 잠시 후 다시 시도해 주세요.', 'error');
+      } finally {
+        button.disabled = false;
+        button.textContent = '무료로 브리핑 받기';
+      }
+    }
+
+    document.getElementById('chart-tabs').addEventListener('click', (event) => {
+      const tab = event.target.closest('[data-tab]');
+      if (!tab) return;
+      activeTab = tab.dataset.tab;
+      const group = TABS.find((item) => item.id === activeTab);
+      focusSymbol(group.symbols[0].tv, { scroll: false });
+    });
+
+    document.getElementById('chart-pills').addEventListener('click', (event) => {
+      const pill = event.target.closest('[data-symbol]');
+      if (!pill) return;
+      focusSymbol(pill.dataset.symbol, { scroll: false });
+    });
+
+    document.getElementById('quote-grid').addEventListener('click', (event) => {
+      const button = event.target.closest('[data-open-symbol]');
+      if (!button) return;
+      focusSymbol(button.dataset.openSymbol);
+    });
+
+    const searchInput = document.getElementById('symbol-search');
+    searchInput.addEventListener('input', () => renderSearch(searchInput.value));
+    searchInput.addEventListener('focus', () => {
+      if (searchInput.value.trim()) renderSearch(searchInput.value);
+    });
+    searchInput.addEventListener('keydown', (event) => {
+      if (event.key === 'ArrowDown') {
+        event.preventDefault();
+        moveSearch(1);
+      } else if (event.key === 'ArrowUp') {
+        event.preventDefault();
+        moveSearch(-1);
+      } else if (event.key === 'Enter') {
+        const selected = document.querySelector('#search-list .search-item[aria-selected="true"]');
+        if (selected) {
+          event.preventDefault();
+          chooseSearch(selected.dataset.symbol);
+        }
+      } else if (event.key === 'Escape') {
+        document.getElementById('search-list').classList.add('hidden');
+        searchInput.setAttribute('aria-expanded', 'false');
+      }
+    });
+    document.getElementById('search-list').addEventListener('mousedown', (event) => {
+      const option = event.target.closest('.search-item');
+      if (!option) return;
+      event.preventDefault();
+      chooseSearch(option.dataset.symbol);
+    });
+    document.addEventListener('pointerdown', (event) => {
+      if (!event.target.closest('#symbol-search-wrap')) {
+        document.getElementById('search-list').classList.add('hidden');
+        searchInput.setAttribute('aria-expanded', 'false');
+      }
+    });
+    document.addEventListener('keydown', (event) => {
+      if (event.key === '/' && document.activeElement && !/^(INPUT|TEXTAREA)$/.test(document.activeElement.tagName)) {
+        event.preventDefault();
+        searchInput.focus();
+      }
+    });
+
+    document.getElementById('news-filters').addEventListener('click', (event) => {
+      const chip = event.target.closest('[data-filter]');
+      if (!chip) return;
+      newsFilter = chip.dataset.filter;
+      renderNewsFilters();
+      renderNews();
+    });
+    document.getElementById('feed-refresh').addEventListener('click', () => {
+      if (Date.now() < refreshCooldownUntil) return;
+      fetchCrawledNewsFromGAS({ refresh: true });
+    });
+
+    // Whole card is the link. Plain clicks go through window.open so the Apps Script sandbox iframe can't swallow them;
+    // ctrl/cmd/shift/middle clicks keep the browser's default behaviour.
+    document.getElementById('news-list').addEventListener('click', (event) => {
+      const card = event.target.closest('a.news-link-card');
+      if (!card || event.button !== 0 || event.ctrlKey || event.metaKey || event.shiftKey || event.altKey) return;
+      event.preventDefault();
+      window.open(card.href, '_blank', 'noopener,noreferrer');
+    });
+
+    // Background check every 15 minutes, and on returning to a tab that has been hidden longer than that.
+    setInterval(() => {
+      if (!document.hidden) fetchCrawledNewsFromGAS({ background: true });
+    }, NEWS_REFRESH_MS);
+    document.addEventListener('visibilitychange', () => {
+      if (!document.hidden && Date.now() - newsLastFetch >= NEWS_REFRESH_MS) fetchCrawledNewsFromGAS({ background: true });
+    });
+    // Re-render every minute so "N분 전" and NEW badges age without a refetch.
+    setInterval(() => { if (newsItems.length) renderNews(); }, 60000);
+
+    document.getElementById('nav-subscribe').addEventListener('click', () => {
+      document.getElementById('subscribe').scrollIntoView({ behavior: 'smooth', block: 'start' });
+    });
+    document.getElementById('nav-sample').addEventListener('click', () => openMailModal(modalPayloadFromForm('you@example.com')));
+    document.getElementById('open-mail').addEventListener('click', () => openMailModal(modalPayloadFromForm('you@example.com')));
+
+    document.getElementById('mail-modal').addEventListener('click', (event) => {
+      if (event.target.id === 'mail-modal' || event.target.closest('[data-close]')) {
+        closeMailModal();
+        return;
+      }
+      const unsub = event.target.closest('[data-unsubscribe]');
+      if (!unsub) return;
+      event.preventDefault();
+      if (unsub.dataset.live === '1') {
+        // Same as the link in the real mail: opens the signed confirmation page in a new tab.
+        window.open(unsub.href, '_blank', 'noopener,noreferrer');
+        return;
+      }
+      showToast('샘플 미리보기입니다. 실제 수신 거부 링크는 구독 후 받는 메일에 들어 있습니다.', 'info');
+    });
+    document.addEventListener('keydown', (event) => {
+      const modal = document.getElementById('mail-modal');
+      if (modal.hidden) return;
+      if (event.key === 'Escape') {
+        closeMailModal();
+        return;
+      }
+      if (event.key !== 'Tab') return;
+      const nodes = [...modal.querySelectorAll('a, button, input, textarea, select')].filter((node) => !node.disabled);
+      if (!nodes.length) return;
+      const first = nodes[0];
+      const last = nodes[nodes.length - 1];
+      if (event.shiftKey && document.activeElement === first) {
+        event.preventDefault();
+        last.focus();
+      } else if (!event.shiftKey && document.activeElement === last) {
+        event.preventDefault();
+        first.focus();
+      }
+    });
+
+    document.getElementById('subscribe-form').addEventListener('change', renderMiniPreview);
+    document.getElementById('subscribe-form').addEventListener('input', renderMiniPreview);
+    document.getElementById('subscribe-form').addEventListener('submit', submitSubscription);
+
+    renderNewsFilters();
+    renderMiniPreview();
+    renderClock();
+    setInterval(renderClock, 30000);
+    fetchCrawledNewsFromGAS();
+
+    renderStaticWidgets();
+    // Rebuild the chart when crossing the phone/tablet breakpoint so its toolbars match the new width.
+    wideChart.addEventListener('change', () => renderAdvancedChart(activeSymbol));
+
+    const initialSymbol = new URLSearchParams(window.location.search).get('symbol');
+    if (initialSymbol && findSymbol(initialSymbol)) {
+      focusSymbol(initialSymbol, { scroll: false });
+    } else {
+      renderPills();
+      renderAdvancedChart(activeSymbol);
+    }
+  </script>
+</body>
+</html>
