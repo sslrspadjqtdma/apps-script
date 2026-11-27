@@ -9,6 +9,9 @@
 
 var TIME_ZONE = 'Asia/Seoul';
 var FEED_CACHE_SECONDS = 1800; // 30 min within the same day
+var FEED_PARTIAL_CACHE_SECONDS = 300; // some categories failed: retry those within 5 min
+var FEED_FAIL_BACKOFF_SECONDS = 60; // nothing collected: wait 1 min before hitting Google News again
+var FEED_FAIL_KEY = 'newsFeed:failBackoff';
 var FEED_CACHE_PREFIX = 'newsFeed:v1:';
 var MAX_ITEMS_PER_CATEGORY = 12;
 // refresh=true is public; allow at most one forced re-collection per this many seconds (shared by all visitors).
@@ -86,7 +89,31 @@ function getNewsFeed_(refresh, bypassThrottle) {
       shared.cached = true;
       return shared;
     }
+    // Google News failed recently: don't hammer it on every request, retry after the short backoff.
+    if (!bypassThrottle && cache.get(FEED_FAIL_KEY)) {
+      if (fresh || cached) {
+        var kept = JSON.parse(fresh || cached);
+        kept.cached = true;
+        return kept;
+      }
+      return { status: 'success', date: todayKst_(), updatedAt: '', news: [], errors: ['수집 재시도 대기 중'], cached: false };
+    }
     var feed = collectNews_();
+    if (!feed.news.length) {
+      // Nothing collected (all categories failed or empty). Never cache this: the next request after the
+      // backoff collects again. Keep serving the last good feed for today if there is one.
+      cache.put(FEED_FAIL_KEY, '1', FEED_FAIL_BACKOFF_SECONDS);
+      console.warn('News collection returned 0 items: ' + feed.errors.join(' | '));
+      var previous = fresh || cached;
+      if (previous) {
+        var last = JSON.parse(previous);
+        last.cached = true;
+        last.errors = feed.errors;
+        return last;
+      }
+      feed.cached = false;
+      return feed;
+    }
     // Only fresh collections reach here (never cache hits), so each Google News fetch is archived once.
     // We already hold the script lock, which also serialises subscriber writes to the same spreadsheet.
     try {
@@ -95,7 +122,8 @@ function getNewsFeed_(refresh, bypassThrottle) {
       console.warn('News archive failed: ' + err);
     }
     try {
-      cache.put(key, JSON.stringify(feed), FEED_CACHE_SECONDS);
+      // Some categories failed: keep it only briefly so the missing ones are retried soon.
+      cache.put(key, JSON.stringify(feed), feed.errors.length ? FEED_PARTIAL_CACHE_SECONDS : FEED_CACHE_SECONDS);
       if (refresh) cache.put(LAST_REFRESH_KEY, String(Date.now()), FORCE_REFRESH_MIN_INTERVAL_SECONDS);
     } catch (err) {
       // Cache values are capped at 100KB; serving uncached is fine.
