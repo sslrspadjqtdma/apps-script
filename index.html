@@ -1239,6 +1239,34 @@
           '</div></div></div>';
     }
 
+    // Subscription interest id → news category id (Code.js NEWS_CATEGORIES).
+    const INTEREST_NEWS_CATEGORY = { macro: 'macro', krSemi: 'domestic', bigtech: 'global', quantum: 'quantum' };
+    const LETTER_HEADLINES_PER_SECTION = 3;
+
+    // "오늘의 헤드라인" block for one briefing section, from the live feed already loaded on the page.
+    function letterHeadlines(interestId) {
+      if (newsMeta.sample) {
+        return '<p class="mt-3 rounded-lg bg-slate-50 px-3 py-2 text-xs text-slate-500">실시간 뉴스를 불러오면 이 분야의 오늘 헤드라인이 여기에 붙습니다.</p>';
+      }
+      const categoryId = INTEREST_NEWS_CATEGORY[interestId];
+      const rows = newsItems.filter((item) => item.categoryId === categoryId).slice(0, LETTER_HEADLINES_PER_SECTION);
+      if (!rows.length) {
+        return '<p class="mt-3 text-xs text-slate-400">오늘 이 분야의 새 헤드라인은 아직 없습니다.</p>';
+      }
+      return '<div class="mt-3 rounded-lg border border-line bg-white px-3 py-2.5">' +
+        '<p class="text-[11px] font-bold text-slate-500">오늘의 헤드라인</p>' +
+        '<ul class="mt-1.5 space-y-1.5">' +
+        rows.map((item) => {
+          const href = safeUrl(item.url);
+          const meta = '<span class="ml-1 text-[11px] text-slate-400 whitespace-nowrap">' + esc(item.source) + ' · ' + esc(formatNewsTime(item.time)) + '</span>';
+          const title = href
+            ? '<a href="' + esc(href) + '" target="_blank" rel="noopener noreferrer" data-news-link class="text-slate-800 hover:text-[#2563eb] hover:underline">' + esc(item.title) + '</a>'
+            : '<span class="text-slate-800">' + esc(item.title) + '</span>';
+          return '<li class="text-[13px] leading-5">' + title + meta + '</li>';
+        }).join('') +
+        '</ul></div>';
+    }
+
     function letterHtml(payload) {
       const time = TIME_SLOTS.find((item) => item.id === payload.timeId) || TIME_SLOTS[0];
       const ids = payload.interestIds.length ? payload.interestIds : INTERESTS.map((item) => item.id);
@@ -1248,7 +1276,7 @@
         const section = BRIEFING[id];
         return '<section class="letter-section"><p class="text-[11px] font-bold text-[#2563eb]">' + esc(section.eyebrow) + '</p><h3 class="mt-1 text-base font-bold">' + esc(section.title) + '</h3><p class="mt-1 text-sm text-slate-600">' + esc(section.lede) + '</p><ul class="mt-2 space-y-1.5 text-sm leading-6 text-slate-700">' +
           section.bullets.map((bullet) => '<li class="flex gap-2"><span class="mt-2 h-1 w-1 rounded-full bg-[#2563eb] shrink-0"></span><span>' + esc(bullet) + '</span></li>').join('') +
-          '</ul></section>';
+          '</ul>' + letterHeadlines(id) + '</section>';
       }).join('');
       const banner = emptySample
         ? '<p class="mb-3 rounded-xl bg-[#eff6ff] px-3 py-2 text-xs leading-5 text-[#1e3a8a]">선택된 관심 분야가 없어 전체 섹션을 샘플로 보여 드립니다. 구독 폼에서 고르면 해당 섹션만 구성됩니다.</p>'
@@ -1503,6 +1531,14 @@
     document.getElementById('mail-modal').addEventListener('click', (event) => {
       if (event.target.id === 'mail-modal' || event.target.closest('[data-close]')) {
         closeMailModal();
+        return;
+      }
+      // Headline links: same window.open path as the news cards so the Apps Script sandbox can't block them.
+      const headline = event.target.closest('a[data-news-link]');
+      if (headline) {
+        if (event.button !== 0 || event.ctrlKey || event.metaKey || event.shiftKey || event.altKey) return;
+        event.preventDefault();
+        window.open(headline.href, '_blank', 'noopener,noreferrer');
         return;
       }
       const unsub = event.target.closest('[data-unsubscribe]');
